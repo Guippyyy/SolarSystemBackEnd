@@ -1,5 +1,7 @@
 const express = require('express');
 const mysql = require('mysql');
+const cors = require('cors');
+const morgan = require('morgan');
 
 const app = express();
 const PORT = 3000;
@@ -15,10 +17,22 @@ const dbConfig = {
 // Create a MySQL connection pool
 const pool = mysql.createPool(dbConfig);
 
+
+
 app.use(express.json());
 
+app.use(morgan('dev'));
+
+app.use(
+  cors({
+    origin: 'http://10.0.2.2:5554', // Replace with your Android app's port
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  })
+);
+
 // Get all planets with details
-app.get('/planets', (req, res) => {
+app.get('/Planet', (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) {
       console.error('Error getting MySQL connection:', err.message);
