@@ -1,0 +1,28 @@
+{
+  "name": "solarsystembackend",
+  "version": "1.0.0",
+  "description": "backend for my android app",
+  "main": "index.js",
+  "scripts": {
+    "devStart": "nodemon server.js",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "SolarSystemApp"
+  },
+  "keywords": [
+    "space"
+  ],
+  "author": "Guillaume De Craene",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "express": "^4.18.2",
+    "mssql": "^10.0.1",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
