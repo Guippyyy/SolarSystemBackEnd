@@ -17,19 +17,33 @@ const dbConfig = {
 // Create a MySQL connection pool
 const pool = mysql.createPool(dbConfig);
 
-
-
 app.use(express.json());
 
 app.use(morgan('dev'));
 
+
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const createError = require('http-errors');
+
+const dotenv = require('dotenv');
+
+const cors_origin = 'http://192.168.54.15:3000'
+
 app.use(
   cors({
-    origin: 'http://10.0.2.2:5554', // Replace with your Android app's port
+    preflightContinue: true,
+    origins: [cors_origin], // Replace with your Android app's port
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   })
 );
+
+app.use(express.urlencoded({
+  extended: false
+}));
+app.use(cookieParser());
+
 
 // Get all planets with details
 app.get('/Planet', (req, res) => {
@@ -84,7 +98,7 @@ app.get('/planet/:id', (req, res) => {
 });
 
 // Get all moons with details
-app.get('/moons', (req, res) => {
+app.get('/moon', (req, res) => {
   pool.getConnection((err, connection) => {
     if (err) {
       console.error('Error getting MySQL connection:', err.message);
@@ -135,7 +149,184 @@ app.get('/moon/:id', (req, res) => {
   });
 });
 
+app.get('/moons/:planetId', (req, res) => {
+  const planetId = req.params.planetId;
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting MySQL connection:', err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    connection.query('SELECT * FROM Moons WHERE PlanetID = ?', [planetId], (error, results) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (error) {
+        console.error('Error fetching moons for the planet:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      res.json(results);
+    });
+  });
+});
+
+
+// Get all moons with details
+app.get('/planetInfo', (req, res) => {
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting MySQL connection:', err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    connection.query('SELECT * FROM PlanetInfo', (error, results) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (error) {
+        console.error('Error fetching planetInfo:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      res.json(results);
+    });
+  });
+});
+
+// Get details of a specific moon
+app.get('/planetInfo/:id', (req, res) => {
+  const moonId = req.params.id;
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting MySQL connection:', err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    connection.query('SELECT * FROM PlanetInfo WHERE Id = ?', [moonId], (error, results) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (error) {
+        console.error('Error fetching moon details:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'planet not found' });
+      }
+
+      res.json(results[0]);
+    });
+  });
+});
+
+app.get('/planetInfo/planetID/:planetId', (req, res) => {
+  const planetId = req.params.planetId;
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting MySQL connection:', err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    connection.query('SELECT * FROM PlanetInfo WHERE PlanetID = ?', [planetId], (error, results) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (error) {
+        console.error('Error fetching planetInfo for the planet:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      res.json(results);
+    });
+  });
+});
+
+app.get('/quickFacts', (req, res) => {
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting MySQL connection:', err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    connection.query('SELECT * FROM QuickFacts', (error, results) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (error) {
+        console.error('Error fetching planetInfo:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      res.json(results);
+    });
+  });
+});
+
+// Get details of a specific moon
+app.get('/quickFacts/:id', (req, res) => {
+  const moonId = req.params.id;
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting MySQL connection:', err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    connection.query('SELECT * FROM QuickFacts WHERE Id = ?', [moonId], (error, results) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (error) {
+        console.error('Error fetching moon details:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: 'planet not found' });
+      }
+
+      res.json(results[0]);
+    });
+  });
+});
+
+app.get('/quickFacts/planetID/:planetId', (req, res) => {
+  const planetId = req.params.planetId;
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error getting MySQL connection:', err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    connection.query('SELECT * FROM QuickFacts WHERE PlanetID = ?', [planetId], (error, results) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (error) {
+        console.error('Error fetching planetInfo for the planet:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
+      }
+
+      res.json(results);
+    });
+  });
+});
+
+
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT,"0.0.0.0", () => {
+  console.log(`Server is running on http://192.168.100.101:${PORT}`);
 });
